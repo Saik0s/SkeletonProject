@@ -1,0 +1,45 @@
+# file options
+
+--exclude scripts,Templates,.build,ApolloCodegen,.devxp,build,.tuist-bin
+--exclude **/Derived/**.swift
+--exclude **/Generated/**.swift
+--exclude **/SwifterSwift/**.swift
+--exclude **/Apollo/**.swift
+--exclude **/build/**.swift
+--exclude **/.build/**.swift
+
+--swiftversion 5.10
+
+# format options
+
+--indent 2
+--maxwidth 150
+--funcattributes prev-line
+--typeattributes prev-line
+--varattributes same-line
+--wraparguments preserve
+--wrapcollections before-first
+--wrapconditions after-first
+--wrapparameters preserve
+--wrapternary before-operators
+
+--header "\n{file}\n"
+
+# rules
+
+--disable                               \
+    andOperator,                        \
+    wrapMultilineStatementBraces,       \
+    wrapSwitchCases,                    \
+    organizeDeclarations,               \
+    wrapEnumCases,                      \
+    redundantNilInit
+
+--enable                                \
+    blankLinesBetweenImports,           \
+    blankLineAfterImports,              \
+    markTypes,                          \
+    blockComments,                      \
+    sortSwitchCases,                    \
+    docComments,                        \
+    isEmpty
