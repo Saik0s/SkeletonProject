@@ -12,20 +12,15 @@ let project = Project(
       tabWidth: 2
     )
   ),
-  // settings: .settings(base: [
-  //   "OTHER_LDFLAGS": [
-  //     "$(inherited)",
-  //     "-ObjC",
-  //   ],
-  //   "BITCODE_ENABLED": "NO",
-  // ]),
+  settings: .settings(base: SettingsDictionary().automaticCodeSigning(devTeam: "8A76N862C8"), defaultSettings: .recommended),
   targets: [
     .target(
       name: "SkeletonProject",
-      destinations: [.iPhone, .appleVision],
+      // destinations: [.iPhone, .appleVision],
+      destinations: .iOS,
       product: .app,
       bundleId: "me.igortarasenko.SkeletonProject.App",
-      deploymentTargets: .multiplatform(iOS: "16.0", visionOS: "1.0"),
+      deploymentTargets: .iOS("16.0"), // .multiplatform(iOS: "16.0", visionOS: "1.0"),
       infoPlist: .extendingDefault(
         with: [
           "UILaunchStoryboardName": "LaunchScreen.storyboard",
@@ -92,10 +87,6 @@ let project = Project(
           "GENERATE_INFOPLIST_FILE": true,
           "CURRENT_PROJECT_VERSION": "1",
           "MARKETING_VERSION": "1.0",
-          "INFOPLIST_KEY_UISupportedInterfaceOrientations": [
-            "UIInterfaceOrientationPortrait",
-            "UIInterfaceOrientationPortraitUpsideDown",
-          ],
           "INFOPLIST_KEY_WKCompanionAppBundleIdentifier": "me.igortarasenko.SkeletonProject.App",
           "INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp": false,
         ]
@@ -130,11 +121,12 @@ let project = Project(
     ),
     .target(
       name: "Common",
-      destinations: [.iPhone, .appleVision, .appleWatch],
+      // destinations: [.iPhone, .appleVision, .appleWatch],
+      destinations: .iOS,
       product: .staticFramework,
       productName: "Common",
       bundleId: "me.igortarasenko.SkeletonProject.Common",
-      deploymentTargets: .multiplatform(iOS: "16.0", watchOS: "9.0", visionOS: "1.0"),
+      deploymentTargets: .iOS("16.0"), // .multiplatform(iOS: "16.0", watchOS: "9.0", visionOS: "1.0"),
       sources: [
         "SkeletonModules/Common/Sources/**",
       ],

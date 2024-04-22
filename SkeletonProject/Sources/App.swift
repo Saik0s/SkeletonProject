@@ -1,5 +1,5 @@
 //
-// SkeletonProjectApp.swift
+// App.swift
 //
 
 import ComposableArchitecture

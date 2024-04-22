@@ -9,24 +9,26 @@ import SwiftUI
 
 @Reducer
 public struct MainFeature {
-  public enum Tab { case counter, settings }
+  public enum Tab { case feed, settings }
 
   @ObservableState
   public struct State: Equatable {
-    var currentTab = Tab.counter
-    var counter = CounterFeature.State()
+    var currentTab = Tab.feed
+    var feed = FeedFeature.State()
     var settings = SettingsFeature.State()
+
+    @Shared(.isDarkModeEnabled) public var isDarkModeEnabled = false
   }
 
   public enum Action {
-    case counter(CounterFeature.Action)
+    case feed(FeedFeature.Action)
     case settings(SettingsFeature.Action)
     case selectTab(Tab)
   }
 
   public var body: some Reducer<State, Action> {
-    Scope(state: \.counter, action: \.counter) {
-      CounterFeature()
+    Scope(state: \.feed, action: \.feed) {
+      FeedFeature()
     }
 
     Scope(state: \.settings, action: \.settings) {
@@ -35,7 +37,7 @@ public struct MainFeature {
 
     Reduce { state, action in
       switch action {
-      case .counter, .settings:
+      case .feed, .settings:
         return .none
 
       case let .selectTab(tab):
@@ -54,11 +56,11 @@ public struct MainView: View {
   public var body: some View {
     WithPerceptionTracking {
       TabView(selection: $store.currentTab.sending(\.selectTab)) {
-        CounterView(
-          store: store.scope(state: \.counter, action: \.counter)
+        FeedView(
+          store: store.scope(state: \.feed, action: \.feed)
         )
-        .tag(MainFeature.Tab.counter)
-        .tabItem { Text("Counter") }
+        .tag(MainFeature.Tab.feed)
+        .tabItem { Text("Feed") }
 
         SettingsView(
           store: store.scope(state: \.settings, action: \.settings)
@@ -66,6 +68,7 @@ public struct MainView: View {
         .tag(MainFeature.Tab.settings)
         .tabItem { Text("Settings") }
       }
+      .preferredColorScheme(store.isDarkModeEnabled ? .dark : .light)
     }
   }
 }
