@@ -45,13 +45,15 @@ public struct AppView: View {
   }
 
   public var body: some View {
-    switch store.case {
-    case let .splash(store):
-      SplashView(store: store)
+    WithPerceptionTracking {
+      switch store.case {
+      case let .splash(store):
+        SplashView(store: store)
 
-    case let .main(store):
-      NavigationStack {
-        MainView(store: store)
+      case let .main(store):
+        NavigationStack {
+          MainView(store: store)
+        }
       }
     }
   }

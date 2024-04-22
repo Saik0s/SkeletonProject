@@ -9,20 +9,37 @@ import SwiftUI
 
 @Reducer
 public struct MainFeature {
+  public enum Tab { case counter, settings }
+
   @ObservableState
   public struct State: Equatable {
-    public var count = 0
+    var currentTab = Tab.counter
+    var counter = CounterFeature.State()
+    var settings = SettingsFeature.State()
   }
 
   public enum Action {
-    case increment
+    case counter(CounterFeature.Action)
+    case settings(SettingsFeature.Action)
+    case selectTab(Tab)
   }
 
-  public var body: some ReducerOf<Self> {
+  public var body: some Reducer<State, Action> {
+    Scope(state: \.counter, action: \.counter) {
+      CounterFeature()
+    }
+
+    Scope(state: \.settings, action: \.settings) {
+      SettingsFeature()
+    }
+
     Reduce { state, action in
       switch action {
-      case .increment:
-        state.count += 1
+      case .counter, .settings:
+        return .none
+
+      case let .selectTab(tab):
+        state.currentTab = tab
         return .none
       }
     }
@@ -32,13 +49,22 @@ public struct MainFeature {
 // MARK: - MainView
 
 public struct MainView: View {
-  @Bindable public var store: StoreOf<MainFeature>
+  @Perception.Bindable public var store: StoreOf<MainFeature>
 
   public var body: some View {
-    VStack {
-      Text("Count: \(store.count)")
-      Button("Increment") {
-        store.send(.increment)
+    WithPerceptionTracking {
+      TabView(selection: $store.currentTab.sending(\.selectTab)) {
+        CounterView(
+          store: store.scope(state: \.counter, action: \.counter)
+        )
+        .tag(MainFeature.Tab.counter)
+        .tabItem { Text("Counter") }
+
+        SettingsView(
+          store: store.scope(state: \.settings, action: \.settings)
+        )
+        .tag(MainFeature.Tab.settings)
+        .tabItem { Text("Settings") }
       }
     }
   }

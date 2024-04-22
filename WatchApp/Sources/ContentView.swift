@@ -6,12 +6,14 @@ import SwiftUI
 
 // MARK: - ContentView
 
-public struct ContentView: View {
-  public init() {}
-
-  public var body: some View {
-    Text("Hello, World!")
-      .padding()
+struct ContentView: View {
+  var body: some View {
+    VStack {
+      Image(systemName: "globe")
+        .imageScale(.large)
+        .foregroundColor(.accentColor)
+      Text("Hello, world!")
+    }
   }
 }
 

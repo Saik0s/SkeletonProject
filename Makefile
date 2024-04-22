@@ -11,6 +11,10 @@ project_file:
 	$(TUIST) install
 	$(TUIST) generate --no-open
 
+project_cache_warmup:
+	$(TUIST) cache Common --external-only
+	$(TUIST) generate -n
+
 update:
 	$(TUIST) install --update
 	$(TUIST) generate --no-open

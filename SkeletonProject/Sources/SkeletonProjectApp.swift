@@ -17,7 +17,9 @@ struct SkeletonProjectApp: App {
         // NB: Don't run application in tests to avoid interference between the app and the test.
         EmptyView()
       } else {
-        AppView(store: Self.store)
+        WithPerceptionTracking {
+          AppView(store: Self.store)
+        }
       }
     }
   }

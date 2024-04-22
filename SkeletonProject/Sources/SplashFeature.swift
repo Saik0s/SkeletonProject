@@ -59,15 +59,17 @@ public struct SplashFeature {
 // MARK: - SplashView
 
 public struct SplashView: View {
-  @Bindable public var store: StoreOf<SplashFeature>
+  @Perception.Bindable public var store: StoreOf<SplashFeature>
 
   public var body: some View {
-    VStack {
-      Text("\(store.timer)")
-        .font(.system(size: 100))
-    }
-    .task {
-      await store.send(.onTask).finish()
+    WithPerceptionTracking {
+      VStack {
+        Text("\(store.timer)")
+          .font(.system(size: 100))
+      }
+      .task {
+        await store.send(.onTask).finish()
+      }
     }
   }
 }
