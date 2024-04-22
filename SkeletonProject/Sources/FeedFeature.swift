@@ -35,7 +35,7 @@ public struct FeedFeature {
 
   @Dependency(\.uuid) public var uuid
 
-  public var body: some ReducerOf<FeedFeature> {
+  public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
       case .alert:
@@ -71,7 +71,6 @@ public struct FeedFeature {
   }
 }
 
-
 // MARK: - FeedView
 
 public struct FeedView: View {
@@ -82,7 +81,6 @@ public struct FeedView: View {
       NavigationStack {
         List {
           ForEach(store.$notes.elements) { $note in
-
             WithPerceptionTracking {
               Text(note.content)
                 .onTapGesture {
@@ -131,18 +129,18 @@ public struct EditingNote {
   public var body: some Reducer<State, Action> {
     BindingReducer()
 
-    Reduce { state, action in
+    Reduce { _, action in
       switch action {
       case .binding:
-        return .none
+        .none
 
       case .saveButtonTapped:
-        return .run { _ in
+        .run { _ in
           await dismiss()
         }
 
       case .cancelButtonTapped:
-        return .run { _ in
+        .run { _ in
           await dismiss()
         }
       }
@@ -189,7 +187,6 @@ struct EditingNoteView: View {
     }
   )
 }
-
 
 extension PersistenceReaderKey where Self == FileStorageKey<IdentifiedArrayOf<Note>> {
   static var notes: Self {
