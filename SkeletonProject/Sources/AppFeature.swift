@@ -51,9 +51,7 @@ public struct AppView: View {
         SplashView(store: store)
 
       case let .main(store):
-        NavigationStack {
-          MainView(store: store)
-        }
+        MainView(store: store)
       }
     }
   }

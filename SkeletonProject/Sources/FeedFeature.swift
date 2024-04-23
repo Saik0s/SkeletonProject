@@ -5,32 +5,34 @@
 import ComposableArchitecture
 import SwiftUI
 
-// MARK: - Note
-
-public struct Note: Identifiable, Equatable, Codable {
-  public var id: UUID
-  public var content: String
-}
-
 // MARK: - FeedFeature
 
 @Reducer
 public struct FeedFeature {
+  @Reducer(state: .equatable)
+  public enum Destination {
+    case alert(AlertState<Alert>)
+    case add(AddFeedItemFeature)
+    case details(FeedItemDetailsFeature)
+
+    @CasePathable
+    public enum Alert {
+      case confirmDeletion
+    }
+  }
+
   @ObservableState
   public struct State: Equatable {
-    @Shared(.memNotes) public var notes: IdentifiedArrayOf<Note> = []
-    @Presents var alert: AlertState<Action.Alert>?
-    @Presents var editingNote: EditingNote.State?
+    @Presents var destination: Destination.State?
+
+    @Shared(.memNotes) public var feedItems: IdentifiedArrayOf<FeedItem> = []
   }
 
   public enum Action {
-    case alert(PresentationAction<Alert>)
-    case addNoteButtonTapped
-    case editingNote(PresentationAction<EditingNote.Action>)
-    case onDelete(IndexSet)
-    case noteTapped(UUID)
+    case destination(PresentationAction<Destination.Action>)
 
-    public enum Alert: Equatable {}
+    case addFeedItemButtonTapped
+    case onDelete(IndexSet)
   }
 
   @Dependency(\.uuid) public var uuid
@@ -38,36 +40,24 @@ public struct FeedFeature {
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
-      case .alert:
+      case .destination(.presented(.add(.saveButtonTapped))):
+//        if let feedItem = state.editFeedItem?.feedItem {
+//          state.feedItems.append(feedItem)
+//        }
         return .none
 
-      case .addNoteButtonTapped:
-        state.editingNote = EditingNote.State(note: Shared(Note(id: uuid(), content: "")))
+      case .destination:
         return .none
 
-      case .editingNote(.presented(.saveButtonTapped)):
-        if let note = state.editingNote?.note {
-          state.notes.append(note)
-        }
-        return .none
-
-      case .editingNote:
+      case .addFeedItemButtonTapped:
         return .none
 
       case let .onDelete(indexSet):
-        state.notes.remove(atOffsets: indexSet)
-        return .none
-
-      case let .noteTapped(id):
-        guard let note = state.$notes.elements.first(where: { $0.id == id }) else { return .none }
-        state.editingNote = EditingNote.State(note: note)
+        state.feedItems.remove(atOffsets: indexSet)
         return .none
       }
     }
-    .ifLet(\.$alert, action: \.alert)
-    .ifLet(\.$editingNote, action: \.editingNote) {
-      EditingNote()
-    }
+    .ifLet(\.$destination, action: \.destination)
   }
 }
 
@@ -80,12 +70,11 @@ public struct FeedView: View {
     WithPerceptionTracking {
       NavigationStack {
         List {
-          ForEach(store.$notes.elements) { $note in
+          ForEach(store.$feedItems.elements) { $feedItem in
             WithPerceptionTracking {
-              Text(note.content)
-                .onTapGesture {
-                  store.send(.noteTapped(note.id))
-                }
+              NavigationLink(state: FeedFeature.Destination.State.details(FeedItemDetailsFeature.State(feedItem: $feedItem))) {
+                FeedItemRowView(feedItem: feedItem)
+              }
             }
           }
           .onDelete { indexSet in
@@ -94,108 +83,37 @@ public struct FeedView: View {
         }
         .toolbar {
           Button {
-            store.send(.addNoteButtonTapped)
+            store.send(.addFeedItemButtonTapped)
           } label: {
             Image(systemName: "plus")
           }
         }
-      }
-      .alert($store.scope(state: \.alert, action: \.alert))
-      .sheet(item: $store.scope(state: \.editingNote, action: \.editingNote)) { store in
-        EditingNoteView(store: store)
-      }
-      .navigationTitle("Notes")
-    }
-  }
-}
-
-// MARK: - EditingNote
-
-@Reducer
-public struct EditingNote {
-  @ObservableState
-  public struct State: Equatable {
-    @Shared public var note: Note
-  }
-
-  public enum Action: BindableAction {
-    case binding(BindingAction<State>)
-    case saveButtonTapped
-    case cancelButtonTapped
-  }
-
-  @Dependency(\.dismiss) public var dismiss
-
-  public var body: some Reducer<State, Action> {
-    BindingReducer()
-
-    Reduce { _, action in
-      switch action {
-      case .binding:
-        .none
-
-      case .saveButtonTapped:
-        .run { _ in
-          await dismiss()
+        .navigationDestination(
+          item: $store.scope(state: \.destination?.details, action: \.destination.details)
+        ) { store in
+          FeedItemDetailsView(store: store)
         }
-
-      case .cancelButtonTapped:
-        .run { _ in
-          await dismiss()
-        }
+        .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
+        .navigationTitle("Feed")
       }
     }
   }
 }
 
-// MARK: - EditingNoteView
+// MARK: - FeedItemRowView
 
-struct EditingNoteView: View {
-  @Perception.Bindable var store: StoreOf<EditingNote>
+private struct FeedItemRowView: View {
+  let feedItem: FeedItem
 
   var body: some View {
-    WithPerceptionTracking {
-      NavigationStack {
-        TextEditor(text: $store.note.content)
-          .navigationTitle("Edit Note")
-          .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-              Button("Done") {
-                store.send(.saveButtonTapped)
-              }
-            }
-          }
-      }
+    VStack(alignment: .leading) {
+      Text(feedItem.id.uuidString)
+        .font(.caption)
+      Spacer()
+      Text(feedItem.content)
+        .font(.caption)
+        .lineLimit(1)
     }
-  }
-}
-
-// MARK: - Preview
-
-#Preview {
-  FeedView(
-    store: Store(
-      initialState: FeedFeature.State(
-        notes: [
-          Note(id: UUID(), content: "Note 1"),
-          Note(id: UUID(), content: "Note 2"),
-          Note(id: UUID(), content: "Note 3"),
-        ]
-      )
-    ) {
-      FeedFeature()
-    }
-  )
-}
-
-extension PersistenceReaderKey where Self == FileStorageKey<IdentifiedArrayOf<Note>> {
-  static var notes: Self {
-    fileStorage(.documentsDirectory.appending(component: "notes.json"))
-  }
-}
-
-extension PersistenceReaderKey where Self == InMemoryKey<IdentifiedArrayOf<Note>> {
-  static var memNotes: Self {
-    inMemory("memNotes")
+    .padding()
   }
 }

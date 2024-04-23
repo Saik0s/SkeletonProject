@@ -42,9 +42,3 @@ public struct SettingsView: View {
     }
   }
 }
-
-public extension PersistenceReaderKey where Self == AppStorageKey<Bool> {
-  static var isDarkModeEnabled: Self {
-    appStorage("isDarkModeEnabled")
-  }
-}

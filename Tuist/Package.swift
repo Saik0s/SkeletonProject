@@ -16,6 +16,7 @@ let package = Package(
   name: "SkeletonProject",
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", branch: "shared-state-beta"),
+    .package(url: "https://github.com/pointfreeco/swift-tagged.git", from: "0.10.0"),
     .package(url: "https://github.com/krzysztofzablocki/Inject.git", branch: "main"),
   ]
 )

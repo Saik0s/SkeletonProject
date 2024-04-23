@@ -59,6 +59,7 @@ let project = Project(
         .target(name: "NotificationServiceExtension"),
         .target(name: "WidgetExtension"),
         .target(name: "WatchApp"),
+        .external(name: "Tagged"),
       ]
     ),
     .target(
@@ -132,6 +133,7 @@ let project = Project(
       ],
       dependencies: [
         .external(name: "ComposableArchitecture"),
+        .external(name: "Tagged"),
       ]
     ),
     .target(
