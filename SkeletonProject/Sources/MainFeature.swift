@@ -15,14 +15,12 @@ public struct MainFeature {
   public struct State: Equatable {
     var currentTab = Tab.feed
     var feed = FeedFeature.State()
-    var settings = SettingsFeature.State()
-
-    @Shared(.isDarkModeEnabled) public var isDarkModeEnabled = false
+    var settings = UserSettingsFeature.State()
   }
 
   public enum Action {
     case feed(FeedFeature.Action)
-    case settings(SettingsFeature.Action)
+    case settings(UserSettingsFeature.Action)
     case selectTab(Tab)
   }
 
@@ -32,7 +30,7 @@ public struct MainFeature {
     }
 
     Scope(state: \.settings, action: \.settings) {
-      SettingsFeature()
+      UserSettingsFeature()
     }
 
     Reduce { state, action in
@@ -62,13 +60,13 @@ public struct MainView: View {
         .tag(MainFeature.Tab.feed)
         .tabItem { Text("Feed") }
 
-        SettingsView(
+        UserSettingsView(
           store: store.scope(state: \.settings, action: \.settings)
         )
         .tag(MainFeature.Tab.settings)
         .tabItem { Text("Settings") }
       }
-      .preferredColorScheme(store.isDarkModeEnabled ? .dark : .light)
+      .preferredColorScheme(store.settings.settings.isDarkModeEnabled ? .dark : .light)
     }
   }
 }

@@ -3,6 +3,7 @@
 //
 
 import ComposableArchitecture
+import IdentifiedCollections
 import SwiftUI
 
 // MARK: - FeedFeature
@@ -25,13 +26,15 @@ public struct FeedFeature {
   public struct State: Equatable {
     @Presents var destination: Destination.State?
 
-    @Shared(.memNotes) public var feedItems: IdentifiedArrayOf<FeedItem> = []
+    ///    @Shared(.feedItems) var feedItems: IdentifiedArrayOf<FeedItem> = []
+    @Shared(.feedItems) var feedItems: [FeedItem] = []
   }
 
   public enum Action {
     case destination(PresentationAction<Destination.Action>)
 
     case addFeedItemButtonTapped
+    case feedItemTapped(FeedItem)
     case onDelete(IndexSet)
   }
 
@@ -50,6 +53,20 @@ public struct FeedFeature {
         return .none
 
       case .addFeedItemButtonTapped:
+        state.feedItems.append(FeedItem(id: .init(uuid()), content: "New feed item"))
+        return .none
+
+      case let .feedItemTapped(feedItem):
+        let item = state.$feedItems.elements.first { $0.id == feedItem.id }
+        guard let item else {
+          state.destination = .alert(.init(
+            title: .init("Feed item not found"),
+            message: .init("The feed item you tapped could not be found."),
+            dismissButton: .default(.init("OK"))
+          ))
+          return .none
+        }
+        state.destination = .details(FeedItemDetailsFeature.State(feedItem: item))
         return .none
 
       case let .onDelete(indexSet):
@@ -69,12 +86,12 @@ public struct FeedView: View {
   public var body: some View {
     WithPerceptionTracking {
       NavigationStack {
-        List {
+        Form {
           ForEach(store.$feedItems.elements) { $feedItem in
             WithPerceptionTracking {
-              NavigationLink(state: FeedFeature.Destination.State.details(FeedItemDetailsFeature.State(feedItem: $feedItem))) {
-                FeedItemRowView(feedItem: feedItem)
-              }
+              Button { store.send(.feedItemTapped(feedItem)) }
+                label: { FeedItemRowView(feedItem: feedItem)
+                }
             }
           }
           .onDelete { indexSet in

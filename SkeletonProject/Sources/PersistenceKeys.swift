@@ -4,22 +4,30 @@
 
 import ComposableArchitecture
 import Foundation
+import IdentifiedCollections
 import Tagged
 
-public extension PersistenceReaderKey where Self == FileStorageKey<IdentifiedArrayOf<FeedItem>> {
-  static var notes: Self {
+public extension PersistenceReaderKey where Self == FileStorageKey<[FeedItem]> {
+  /// public extension PersistenceReaderKey where Self == FileStorageKey<IdentifiedArrayOf<FeedItem>> {
+  static var feedItems: Self {
     fileStorage(.documentsDirectory.appending(component: "feedItems.json"))
   }
 }
 
 public extension PersistenceReaderKey where Self == InMemoryKey<IdentifiedArrayOf<FeedItem>> {
-  static var memNotes: Self {
+  static var memFeedItems: Self {
     inMemory("memFeedItems")
   }
 }
 
-public extension PersistenceReaderKey where Self == AppStorageKey<Bool> {
-  static var isDarkModeEnabled: Self {
-    appStorage("isDarkModeEnabled")
+public extension PersistenceReaderKey where Self == FileStorageKey<UserSettings> {
+  static var userSettings: Self {
+    fileStorage(.documentsDirectory.appending(component: "userSettings.json"))
+  }
+}
+
+public extension PersistenceReaderKey where Self == FileStorageKey<AppConfig> {
+  static var appConfig: Self {
+    fileStorage(.documentsDirectory.appending(component: "appConfig.json"))
   }
 }

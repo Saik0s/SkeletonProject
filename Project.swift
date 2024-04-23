@@ -6,14 +6,22 @@ import ProjectDescription
 
 let project = Project(
   name: "SkeletonProject",
+
   options: .options(
     textSettings: .textSettings(
       indentWidth: 2,
       tabWidth: 2
     )
   ),
-  settings: .settings(base: SettingsDictionary().automaticCodeSigning(devTeam: "8A76N862C8"), defaultSettings: .recommended),
+
+  settings: .settings(
+    base: SettingsDictionary().automaticCodeSigning(devTeam: "8A76N862C8"),
+    defaultSettings: .recommended
+  ),
+
   targets: [
+    // MARK: - App
+
     .target(
       name: "SkeletonProject",
       // destinations: [.iPhone, .appleVision],
@@ -26,7 +34,7 @@ let project = Project(
           "UILaunchStoryboardName": "LaunchScreen.storyboard",
         ]
       ),
-      sources: ["SkeletonProject/Sources/**"],
+      sources: "SkeletonProject/Sources/**",
       resources: .resources(
         ["SkeletonProject/Resources/**"],
         privacyManifest: .privacyManifest(
@@ -53,13 +61,15 @@ let project = Project(
         )
       ),
       dependencies: [
+        // .external(name: "Inject"),
         .external(name: "ComposableArchitecture"),
-        .external(name: "Inject"),
+        .external(name: "MemberwiseInit"),
+        .external(name: "Tagged"),
+
         .target(name: "Common"),
         .target(name: "NotificationServiceExtension"),
-        .target(name: "WidgetExtension"),
         .target(name: "WatchApp"),
-        .external(name: "Tagged"),
+        .target(name: "WidgetExtension"),
       ]
     ),
     .target(
@@ -68,10 +78,33 @@ let project = Project(
       product: .unitTests,
       bundleId: "me.igortarasenko.SkeletonProject.Tests",
       infoPlist: .default,
-      sources: ["SkeletonProject/Tests/**"],
+      sources: "SkeletonProject/Tests/**",
       resources: [],
-      dependencies: [.target(name: "SkeletonProject")]
+      dependencies: [
+        .target(name: "SkeletonProject"),
+      ]
     ),
+
+    // MARK: - Modules
+
+    .target(
+      name: "Common",
+      // destinations: [.iPhone, .appleVision, .appleWatch],
+      destinations: .iOS,
+      product: .staticFramework,
+      productName: "Common",
+      bundleId: "me.igortarasenko.SkeletonProject.Common",
+      deploymentTargets: .iOS("16.0"), // .multiplatform(iOS: "16.0", watchOS: "9.0", visionOS: "1.0"),
+      sources: "SkeletonModules/Common/Sources/**",
+      dependencies: [
+        .external(name: "ComposableArchitecture"),
+        .external(name: "Tagged"),
+        .external(name: "MemberwiseInit"),
+      ]
+    ),
+
+    // MARK: - WatchApp
+
     .target(
       name: "WatchApp",
       destinations: [.appleWatch],
@@ -105,9 +138,7 @@ let project = Project(
         ],
       ]),
       sources: "WatchWidgetExtension/Sources/**",
-      resources: "WatchWidgetExtension/Resources/**",
-      dependencies: [
-      ]
+      resources: "WatchWidgetExtension/Resources/**"
     ),
     .target(
       name: "WatchAppTests",
@@ -120,22 +151,9 @@ let project = Project(
         .target(name: "WatchApp"),
       ]
     ),
-    .target(
-      name: "Common",
-      // destinations: [.iPhone, .appleVision, .appleWatch],
-      destinations: .iOS,
-      product: .staticFramework,
-      productName: "Common",
-      bundleId: "me.igortarasenko.SkeletonProject.Common",
-      deploymentTargets: .iOS("16.0"), // .multiplatform(iOS: "16.0", watchOS: "9.0", visionOS: "1.0"),
-      sources: [
-        "SkeletonModules/Common/Sources/**",
-      ],
-      dependencies: [
-        .external(name: "ComposableArchitecture"),
-        .external(name: "Tagged"),
-      ]
-    ),
+
+    // MARK: - NotificationServiceExtension
+
     .target(
       name: "NotificationServiceExtension",
       destinations: .iOS,
@@ -148,10 +166,11 @@ let project = Project(
           "NSExtensionPrincipalClass": "$(PRODUCT_MODULE_NAME).NotificationService",
         ],
       ]),
-      sources: "NotificationServiceExtension/**",
-      dependencies: [
-      ]
+      sources: "NotificationServiceExtension/**"
     ),
+
+    // MARK: - WidgetExtension
+
     .target(
       name: "WidgetExtension",
       destinations: .iOS,
@@ -164,9 +183,7 @@ let project = Project(
         ],
       ]),
       sources: "WidgetExtension/Sources/**",
-      resources: "WidgetExtension/Resources/**",
-      dependencies: [
-      ]
+      resources: "WidgetExtension/Resources/**"
     ),
   ]
 )

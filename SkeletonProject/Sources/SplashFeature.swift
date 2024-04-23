@@ -50,7 +50,7 @@ public struct SplashFeature {
   }
 
   private func startTimer(send: Send<Action>) async {
-    for await _ in clock.timer(interval: .seconds(1)) {
+    for await _ in clock.timer(interval: .seconds(0.3)) {
       await send(.timerTick)
     }
   }

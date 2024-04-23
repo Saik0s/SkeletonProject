@@ -1,4 +1,5 @@
 {
+  "originHash" : "a46b2d0104d6d929c463e84ba4577223135676582ca6464eb2073224602f028d",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -7,15 +8,6 @@
       "state" : {
         "revision" : "9dc9cbe4bc45c65164fa653a563d8d8db61b09bb",
         "version" : "1.0.0"
-      }
-    },
-    {
-      "identity" : "inject",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/krzysztofzablocki/Inject.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "838e614220000a563bbaeba2974236f2c2c51e13"
       }
     },
     {
@@ -51,7 +43,7 @@
       "location" : "https://github.com/pointfreeco/swift-composable-architecture.git",
       "state" : {
         "branch" : "shared-state-beta",
-        "revision" : "c2a7cc064b8f7e8e9438cd71011aecd7b8dfb984"
+        "revision" : "0293b055101b7283ddbe332c7945b424aca5eb72"
       }
     },
     {
@@ -88,6 +80,15 @@
       "state" : {
         "revision" : "d1e45f3e1eee2c9193f5369fa9d70a6ddad635e8",
         "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "swift-memberwise-init-macro",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gohanlon/swift-memberwise-init-macro",
+      "state" : {
+        "revision" : "a536a4fe46fdb52e9156b0473b5da63096d5218d",
+        "version" : "0.4.0"
       }
     },
     {
@@ -136,5 +137,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

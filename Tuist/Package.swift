@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 5.10
 import PackageDescription
 
 #if TUIST
@@ -15,8 +15,10 @@ import PackageDescription
 let package = Package(
   name: "SkeletonProject",
   dependencies: [
+    // .package(url: "https://github.com/krzysztofzablocki/Inject.git", branch: "main"),
+
+    .package(url: "https://github.com/gohanlon/swift-memberwise-init-macro", from: "0.4.0"),
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", branch: "shared-state-beta"),
     .package(url: "https://github.com/pointfreeco/swift-tagged.git", from: "0.10.0"),
-    .package(url: "https://github.com/krzysztofzablocki/Inject.git", branch: "main"),
   ]
 )
