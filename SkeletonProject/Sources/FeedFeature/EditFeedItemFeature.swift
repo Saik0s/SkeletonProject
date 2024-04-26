@@ -16,7 +16,7 @@ public struct EditFeedItemFeature {
 
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
-    case saveButtonTapped
+    case doneButtonTapped
     case cancelButtonTapped
   }
 
@@ -30,15 +30,11 @@ public struct EditFeedItemFeature {
       case .binding:
         .none
 
-      case .saveButtonTapped:
-        .run { _ in
-          await dismiss()
-        }
+      case .doneButtonTapped:
+        .run { _ in await dismiss() }
 
       case .cancelButtonTapped:
-        .run { _ in
-          await dismiss()
-        }
+        .run { _ in await dismiss() }
       }
     }
   }
@@ -57,7 +53,7 @@ struct EditFeedItemView: View {
           .toolbar {
             ToolbarItem(placement: .confirmationAction) {
               Button("Done") {
-                store.send(.saveButtonTapped)
+                store.send(.doneButtonTapped)
               }
             }
           }

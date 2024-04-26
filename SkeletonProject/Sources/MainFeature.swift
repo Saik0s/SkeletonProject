@@ -54,17 +54,17 @@ public struct MainView: View {
   public var body: some View {
     WithPerceptionTracking {
       TabView(selection: $store.currentTab.sending(\.selectTab)) {
-        FeedView(
-          store: store.scope(state: \.feed, action: \.feed)
-        )
-        .tag(MainFeature.Tab.feed)
-        .tabItem { Text("Feed") }
+        FeedView(store: store.scope(state: \.feed, action: \.feed))
+          .tag(MainFeature.Tab.feed)
+          .tabItem {
+            Label("Feed", systemImage: "list.bullet")
+          }
 
-        UserSettingsView(
-          store: store.scope(state: \.settings, action: \.settings)
-        )
-        .tag(MainFeature.Tab.settings)
-        .tabItem { Text("Settings") }
+        UserSettingsView(store: store.scope(state: \.settings, action: \.settings))
+          .tag(MainFeature.Tab.settings)
+          .tabItem {
+            Label("Settings", systemImage: "gear")
+          }
       }
       .preferredColorScheme(store.settings.settings.isDarkModeEnabled ? .dark : .light)
     }

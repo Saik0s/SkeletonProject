@@ -20,10 +20,10 @@ update:
 	$(TUIST) generate --no-open
 
 build_debug:
-	$(TUIST) build --generate --configuration Debug --build-output-path .build/
+	$(TUIST) build --generate --configuration Debug --build-output-path .build/ SkeletonProject
 
 build_release:
-	$(TUIST) build --generate --configuration Release --build-output-path .build/
+	$(TUIST) build --generate --configuration Release --build-output-path .build/ SkeletonProject
 
 format:
 	$(MISE) x swiftlint -- swiftlint lint --force-exclude --fix .

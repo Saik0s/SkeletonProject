@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"command": "make build_debug",
+			"problemMatcher": [
+				"$swiftc"
+			],
+			"group": "build",
+			"label": "Make Buid (Tuist)",
+			"detail": "make build_debug",
+		}
+	]
+}

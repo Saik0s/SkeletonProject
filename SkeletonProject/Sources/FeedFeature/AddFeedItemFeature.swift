@@ -11,7 +11,7 @@ import SwiftUI
 public struct AddFeedItemFeature {
   @ObservableState
   public struct State: Equatable {
-    @Shared public var feedItem: FeedItem
+    public var feedItem: FeedItem
   }
 
   public enum Action: BindableAction {
@@ -28,15 +28,13 @@ public struct AddFeedItemFeature {
     Reduce { _, action in
       switch action {
       case .binding:
-        .none
+        return .none
 
       case .saveButtonTapped:
-        .run { _ in
-          await dismiss()
-        }
+        return .none
 
       case .cancelButtonTapped:
-        .run { _ in
+        return .run { _ in
           await dismiss()
         }
       }
