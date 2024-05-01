@@ -12,10 +12,14 @@ import Tagged
 @Reducer
 public struct FeedFeature {
   @Reducer(state: .equatable)
+  public enum Path {
+    case details(FeedItemDetailsFeature)
+  }
+
+  @Reducer(state: .equatable)
   public enum Destination {
     case alert(AlertState<Alert>)
     case add(AddFeedItemFeature)
-    case details(FeedItemDetailsFeature)
 
     @CasePathable
     public enum Alert {
@@ -26,10 +30,10 @@ public struct FeedFeature {
   @Reducer
   public struct Row {
     @ObservableState
-    public struct State: Identifiable, Equatable {
+    public struct State: Equatable, Identifiable {
       public var id: FeedItem.ID { item.id }
       @Shared var item: FeedItem
-      var isProcessing: Bool = false
+      var isProcessing = false
     }
 
     public enum Action: BindableAction {
@@ -71,6 +75,7 @@ public struct FeedFeature {
 
   @ObservableState
   public struct State: Equatable {
+    var path = StackState<Path.State>()
     @Presents var destination: Destination.State?
     @Shared(.feedItems) var feedItems: [FeedItem] = []
     var rows: IdentifiedArrayOf<Row.State> = []
@@ -79,11 +84,13 @@ public struct FeedFeature {
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case onTask
+    case path(StackActionOf<Path>)
     case destination(PresentationAction<Destination.Action>)
     case row(IdentifiedActionOf<Row>)
     case feedItemsAmountChanged
     case addFeedItemButtonTapped
     case onDelete(IndexSet)
+    case rowTapped(Shared<FeedItem>)
   }
 
   @Dependency(\.uuid) public var uuid
@@ -99,12 +106,15 @@ public struct FeedFeature {
       case .onTask:
         updateRows(&state)
         return .run { [feedItems = state.$feedItems] send in
-          for await _ in feedItems.publisher.map(\.count).values {
+          for await _ in feedItems.publisher.map(\.count).removeDuplicates().values {
             await send(.feedItemsAmountChanged)
           }
         }
 
-      case .destination(.presented(.add(.saveButtonTapped))):
+      case .path:
+        return .none
+
+      case .destination(.presented(.add(.delegate(.saveButtonTapped)))):
         if let item = state.destination?.add {
           state.feedItems.append(item.feedItem)
           state.destination = nil
@@ -130,8 +140,13 @@ public struct FeedFeature {
       case let .onDelete(indexSet):
         state.feedItems.remove(atOffsets: indexSet)
         return .none
+
+      case let .rowTapped(item):
+        state.path.append(.details(FeedItemDetailsFeature.State(feedItem: item)))
+        return .none
       }
     }
+    .forEach(\.path, action: \.path)
     .ifLet(\.$destination, action: \.destination)
     .forEach(\.rows, action: \.row) {
       Row()
@@ -139,7 +154,7 @@ public struct FeedFeature {
   }
 
   func updateRows(_ state: inout State) {
-    state.rows = .init(uniqueElements: state.$feedItems.elements.map { $feedItem in
+    state.rows = .init(uncheckedUniqueElements: state.$feedItems.elements.map { $feedItem in
       state.rows[id: feedItem.id] ?? .init(item: $feedItem)
     })
   }
@@ -152,12 +167,13 @@ public struct FeedView: View {
 
   public var body: some View {
     WithPerceptionTracking {
-      NavigationStack {
-        Form {
+      NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+        List {
           ForEach(store.scope(state: \.rows, action: \.row)) { rowStore in
             WithPerceptionTracking {
-              Button { store.$destination.wrappedValue = .details(FeedItemDetailsFeature.State(feedItem: rowStore.$item)) }
-                label: { FeedItemRowView(store: rowStore) }
+              Button { store.send(.rowTapped(rowStore.$item)) } label: {
+                FeedItemRowView(store: rowStore)
+              }
             }
           }
           .onDelete { indexSet in
@@ -172,17 +188,17 @@ public struct FeedView: View {
           }
         }
         .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
-        .navigationDestination(
-          item: $store.scope(state: \.destination?.details, action: \.destination.details)
-        ) { store in
-          FeedItemDetailsView(store: store)
-        }
         .sheet(
           item: $store.scope(state: \.destination?.add, action: \.destination.add)
         ) { store in
           AddFeedItemView(store: store)
         }
         .navigationTitle("Feed")
+      } destination: { store in
+        switch store.case {
+        case .details(let store):
+          FeedItemDetailsView(store: store)
+        }
       }
       .task { await store.send(.onTask).finish() }
     }
@@ -192,7 +208,7 @@ public struct FeedView: View {
 // MARK: - FeedItemRowView
 
 private struct FeedItemRowView: View {
-  @Perception.Bindable public var store: StoreOf<FeedFeature.Row>
+  @Perception.Bindable var store: StoreOf<FeedFeature.Row>
 
   var body: some View {
     WithPerceptionTracking {

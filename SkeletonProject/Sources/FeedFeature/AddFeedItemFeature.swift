@@ -16,8 +16,12 @@ public struct AddFeedItemFeature {
 
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
-    case saveButtonTapped
+    case delegate(Delegate)
     case cancelButtonTapped
+
+    public enum Delegate {
+      case saveButtonTapped
+    }
   }
 
   @Dependency(\.dismiss) public var dismiss
@@ -28,13 +32,13 @@ public struct AddFeedItemFeature {
     Reduce { _, action in
       switch action {
       case .binding:
-        return .none
+        .none
 
-      case .saveButtonTapped:
-        return .none
+      case .delegate:
+        .none
 
       case .cancelButtonTapped:
-        return .run { _ in
+        .run { _ in
           await dismiss()
         }
       }
@@ -55,7 +59,7 @@ struct AddFeedItemView: View {
           .toolbar {
             ToolbarItem(placement: .confirmationAction) {
               Button("Done") {
-                store.send(.saveButtonTapped)
+                store.send(.delegate(.saveButtonTapped))
               }
             }
           }

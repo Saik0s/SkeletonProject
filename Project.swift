@@ -4,6 +4,11 @@
 
 import ProjectDescription
 
+let projectBaseSettings: SettingsDictionary = [
+  "_APP_VERSION": "0.0.1",
+  "_APP_BUILD_VERSION": "1",
+]
+
 let project = Project(
   name: "SkeletonProject",
 
@@ -15,8 +20,11 @@ let project = Project(
   ),
 
   settings: .settings(
-    base: SettingsDictionary().automaticCodeSigning(devTeam: "8A76N862C8"),
-    defaultSettings: .recommended
+    base: projectBaseSettings.automaticCodeSigning(devTeam: "8A76N862C8"),
+    debug: [
+      "OTHER_SWIFT_FLAGS": "-D DEBUG $(inherited) -Xfrontend -warn-long-function-bodies=500 -Xfrontend -warn-long-expression-type-checking=500 -Xfrontend -debug-time-function-bodies -Xfrontend -enable-actor-data-race-checks",
+      "OTHER_LDFLAGS": "$(inherited) -Xlinker -interposable -Xlinker -undefined -Xlinker dynamic_lookup",
+    ]
   ),
 
   targets: [
@@ -32,6 +40,12 @@ let project = Project(
       infoPlist: .extendingDefault(
         with: [
           "UILaunchStoryboardName": "LaunchScreen.storyboard",
+          "UIUserInterfaceStyle": "Dark",
+          "UIViewControllerBasedStatusBarAppearance": true,
+          "UIStatusBarStyle": "UIStatusBarStyleLightContent",
+          "ITSAppUsesNonExemptEncryption": false,
+          "CFBundleShortVersionString": "$(_APP_VERSION)",
+          "CFBundleVersion": "$(_APP_BUILD_VERSION)",
         ]
       ),
       sources: "SkeletonProject/Sources/**",
@@ -60,8 +74,21 @@ let project = Project(
           ]
         )
       ),
+      scripts: [
+        .post(
+          script: """
+                  export REVEAL_SERVER_FILENAME="RevealServer.xcframework"
+                  export REVEAL_SERVER_PATH="${SRCROOT}/SkeletonProject/Support/${REVEAL_SERVER_FILENAME}"
+                  [ -d "${REVEAL_SERVER_PATH}" ] && "${REVEAL_SERVER_PATH}/Scripts/integrate_revealserver.sh" \
+                  || echo "Reveal Server not loaded into ${TARGET_NAME}: ${REVEAL_SERVER_FILENAME} could not be found."
+                  """,
+          name: "Reveal Server",
+          basedOnDependencyAnalysis: false
+        ),
+      ],
       dependencies: [
-        // .external(name: "Inject"),
+        .external(name: "Inject"),
+
         .external(name: "ComposableArchitecture"),
         .external(name: "MemberwiseInit"),
         .external(name: "Tagged"),
@@ -70,8 +97,11 @@ let project = Project(
         .target(name: "NotificationServiceExtension"),
         .target(name: "WatchApp"),
         .target(name: "WidgetExtension"),
+
+        .xcframework(path: "SkeletonProject/Support/RevealServer.xcframework", status: .optional),
       ]
     ),
+
     .target(
       name: "SkeletonProjectTests",
       destinations: .iOS,
@@ -178,6 +208,8 @@ let project = Project(
       bundleId: "me.igortarasenko.SkeletonProject.App.WidgetExtension",
       infoPlist: .extendingDefault(with: [
         "CFBundleDisplayName": "$(PRODUCT_NAME)",
+        "CFBundleShortVersionString": "$(_APP_VERSION)",
+        "CFBundleVersion": "$(_APP_BUILD_VERSION)",
         "NSExtension": [
           "NSExtensionPointIdentifier": "com.apple.widgetkit-extension",
         ],

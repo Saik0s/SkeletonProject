@@ -28,8 +28,10 @@ public struct FeedItemDetailsFeature {
       switch action {
       case .binding:
         return .none
+
       case .edit:
         return .none
+
       case .editButtonTapped:
         state.edit = .init(feedItem: state.$feedItem)
         return .none
@@ -48,22 +50,20 @@ struct FeedItemDetailsView: View {
 
   var body: some View {
     WithPerceptionTracking {
-      NavigationStack {
-        Text(store.feedItem.content)
-          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-          .padding()
-          .navigationTitle(store.feedItem.id.uuidString)
-          .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-              Button("Edit") {
-                store.send(.editButtonTapped)
-              }
+      Text(store.feedItem.content)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding()
+        .navigationTitle(store.feedItem.id.uuidString)
+        .toolbar {
+          ToolbarItem(placement: .confirmationAction) {
+            Button("Edit") {
+              store.send(.editButtonTapped)
             }
           }
-          .sheet(item: $store.scope(state: \.edit, action: \.edit)) { store in
-            EditFeedItemView(store: store)
-          }
-      }
+        }
+        .sheet(item: $store.scope(state: \.edit, action: \.edit)) { store in
+          EditFeedItemView(store: store)
+        }
     }
   }
 }

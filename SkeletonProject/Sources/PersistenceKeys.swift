@@ -8,7 +8,6 @@ import IdentifiedCollections
 import Tagged
 
 public extension PersistenceReaderKey where Self == FileStorageKey<[FeedItem]> {
-  /// public extension PersistenceReaderKey where Self == FileStorageKey<IdentifiedArrayOf<FeedItem>> {
   static var feedItems: Self {
     fileStorage(.documentsDirectory.appending(component: "feedItems.json"))
   }
