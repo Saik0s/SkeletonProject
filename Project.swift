@@ -2,12 +2,16 @@
 // Project.swift
 //
 
+import Foundation
 import ProjectDescription
 
 let projectBaseSettings: SettingsDictionary = [
   "_APP_VERSION": "0.0.1",
   "_APP_BUILD_VERSION": "1",
 ]
+
+let isRevealSupported = FileManager.default.fileExists(atPath: "SkeletonProject/Support/RevealServer.xcframework")
+print("RevealServer.xcframework is \(isRevealSupported ? "supported" : "not supported")")
 
 let project = Project(
   name: "SkeletonProject",
@@ -74,18 +78,20 @@ let project = Project(
           ]
         )
       ),
-      scripts: [
-        .post(
-          script: """
-                  export REVEAL_SERVER_FILENAME="RevealServer.xcframework"
-                  export REVEAL_SERVER_PATH="${SRCROOT}/SkeletonProject/Support/${REVEAL_SERVER_FILENAME}"
-                  [ -d "${REVEAL_SERVER_PATH}" ] && "${REVEAL_SERVER_PATH}/Scripts/integrate_revealserver.sh" \
-                  || echo "Reveal Server not loaded into ${TARGET_NAME}: ${REVEAL_SERVER_FILENAME} could not be found."
-                  """,
-          name: "Reveal Server",
-          basedOnDependencyAnalysis: false
-        ),
-      ],
+      scripts: isRevealSupported
+        ? [
+          .post(
+            script: """
+            export REVEAL_SERVER_FILENAME="RevealServer.xcframework"
+            export REVEAL_SERVER_PATH="${SRCROOT}/SkeletonProject/Support/${REVEAL_SERVER_FILENAME}"
+            [ -d "${REVEAL_SERVER_PATH}" ] && "${REVEAL_SERVER_PATH}/Scripts/integrate_revealserver.sh" \
+            || echo "Reveal Server not loaded into ${TARGET_NAME}: ${REVEAL_SERVER_FILENAME} could not be found."
+            """,
+            name: "Reveal Server",
+            basedOnDependencyAnalysis: false
+          ),
+        ]
+        : [],
       dependencies: [
         .external(name: "Inject"),
 
@@ -97,9 +103,11 @@ let project = Project(
         .target(name: "NotificationServiceExtension"),
         .target(name: "WatchApp"),
         .target(name: "WidgetExtension"),
-
-        .xcframework(path: "SkeletonProject/Support/RevealServer.xcframework", status: .optional),
       ]
+        // Check if RevealServer framework exists at this path and only then include it in this array of dependencies
+        + (isRevealSupported
+          ? [.xcframework(path: "SkeletonProject/Support/RevealServer.xcframework", status: .optional)]
+          : [])
     ),
 
     .target(
