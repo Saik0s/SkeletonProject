@@ -72,3 +72,5 @@ Tuist/.build
 
 SkeletonProject/Support/RevealServer.xcframework
 SkeletonProject/Support/LICENSE.md
+
+buildServer.json

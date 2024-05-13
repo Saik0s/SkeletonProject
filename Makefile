@@ -33,4 +33,7 @@ clean:
 	rm -rf build
 	$(TUIST) clean
 
+build_server:
+	xcode-build-server config -workspace SkeletonProject.xcworkspace -scheme SkeletonProject || echo "consult https://github.com/SolaWing/xcode-build-server for vscode support"
+
 .SILENT: all bootstrap project_file update build_debug build_release format clean

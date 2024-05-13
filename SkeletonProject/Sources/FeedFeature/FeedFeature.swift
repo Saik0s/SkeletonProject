@@ -106,7 +106,7 @@ public struct FeedFeature {
       case .onTask:
         updateRows(&state)
         return .run { [feedItems = state.$feedItems] send in
-          for await _ in feedItems.publisher.map(\.count).removeDuplicates().values {
+          for await _ in feedItems.publisher.map({ $0.map(\.id) }).removeDuplicates().values {
             await send(.feedItemsAmountChanged)
           }
         }

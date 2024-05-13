@@ -18,7 +18,7 @@ let package = Package(
     .package(url: "https://github.com/krzysztofzablocki/Inject.git", branch: "main"),
 
     .package(url: "https://github.com/gohanlon/swift-memberwise-init-macro", from: "0.4.0"),
-    .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.10.2"),
+    .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.10.4"),
     .package(url: "https://github.com/pointfreeco/swift-tagged.git", from: "0.10.0"),
   ]
 )
