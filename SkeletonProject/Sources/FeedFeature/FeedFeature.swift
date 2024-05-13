@@ -105,6 +105,10 @@ public struct FeedFeature {
 
       case .onTask:
         updateRows(&state)
+        // In this case state.$feedItems.elements has old values when processing the action
+        // return .publisher {
+        //   state.$feedItems.publisher.map({ $0.map(\.id) }).removeDuplicates().map { _ in Action.feedItemsAmountChanged }
+        // }
         return .run { [feedItems = state.$feedItems] send in
           for await _ in feedItems.publisher.map({ $0.map(\.id) }).removeDuplicates().values {
             await send(.feedItemsAmountChanged)
