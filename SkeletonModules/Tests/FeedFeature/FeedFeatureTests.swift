@@ -4,7 +4,9 @@
 
 import ComposableArchitecture
 import Foundation
-@testable import SkeletonProject
+import Common
+import SharedModels
+@testable import FeedFeature
 import XCTest
 
 final class FeedFeatureTests: XCTestCase {

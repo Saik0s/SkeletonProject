@@ -4,6 +4,8 @@
 
 import ComposableArchitecture
 import SwiftUI
+import FeedFeature
+import SharedModels
 
 // MARK: - MainFeature
 
@@ -16,6 +18,8 @@ public struct MainFeature {
     var currentTab = Tab.feed
     var feed = FeedFeature.State()
     var settings = UserSettingsFeature.State()
+
+    public init() {}
   }
 
   public enum Action {
@@ -50,6 +54,10 @@ public struct MainFeature {
 
 public struct MainView: View {
   @Perception.Bindable public var store: StoreOf<MainFeature>
+
+  public init(store: StoreOf<MainFeature>) {
+    self.store = store
+  }
 
   public var body: some View {
     WithPerceptionTracking {

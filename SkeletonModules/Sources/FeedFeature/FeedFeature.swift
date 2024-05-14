@@ -6,6 +6,7 @@ import ComposableArchitecture
 import IdentifiedCollections
 import SwiftUI
 import Tagged
+import SharedModels
 
 // MARK: - FeedFeature
 
@@ -79,6 +80,8 @@ public struct FeedFeature {
     @Presents var destination: Destination.State?
     @Shared(.feedItems) var feedItems: [FeedItem] = []
     var rows: IdentifiedArrayOf<Row.State> = []
+
+    public init() {}
   }
 
   public enum Action: BindableAction {
@@ -92,6 +95,7 @@ public struct FeedFeature {
     case onDelete(IndexSet)
     case rowTapped(Shared<FeedItem>)
   }
+
 
   @Dependency(\.uuid) public var uuid
 
@@ -157,6 +161,8 @@ public struct FeedFeature {
     }
   }
 
+  public init() {}
+
   func updateRows(_ state: inout State) {
     state.rows = .init(uncheckedUniqueElements: state.$feedItems.elements.map { $feedItem in
       state.rows[id: feedItem.id] ?? .init(item: $feedItem)
@@ -168,6 +174,10 @@ public struct FeedFeature {
 
 public struct FeedView: View {
   @Perception.Bindable public var store: StoreOf<FeedFeature>
+
+  public init(store: StoreOf<FeedFeature>) {
+    self.store = store
+  }
 
   public var body: some View {
     WithPerceptionTracking {

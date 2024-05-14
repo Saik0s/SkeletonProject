@@ -5,6 +5,7 @@
 import ComposableArchitecture
 import MemberwiseInit
 import SwiftUI
+import SharedModels
 
 // MARK: - UserSettingsFeature
 

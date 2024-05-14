@@ -4,6 +4,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import SharedModels
 
 // MARK: - EditFeedItemFeature
 

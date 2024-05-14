@@ -4,6 +4,8 @@
 
 import ComposableArchitecture
 import SwiftUI
+import FeedFeature
+import SharedModels
 
 // MARK: - AppFeature
 

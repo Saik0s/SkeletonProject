@@ -23,6 +23,10 @@ let project = Project(
     )
   ),
 
+  packages: [
+    .package(path: "SkeletonModules"),
+  ],
+
   settings: .settings(
     base: projectBaseSettings.automaticCodeSigning(devTeam: "8A76N862C8"),
     debug: [
@@ -99,10 +103,17 @@ let project = Project(
         .external(name: "MemberwiseInit"),
         .external(name: "Tagged"),
 
-        .target(name: "Common"),
-        .target(name: "NotificationServiceExtension"),
-        .target(name: "WatchApp"),
-        .target(name: "WidgetExtension"),
+        // .target(name: "NotificationServiceExtension"),
+        // .target(name: "WatchApp"),
+        // .target(name: "WidgetExtension"),
+
+        // .target(name: "Common"),
+        // .target(name: "FeedFeature"),
+        // .target(name: "SharedModels"),
+
+        .package(product: "Common"),
+        .package(product: "FeedFeature"),
+        .package(product: "SharedModels"),
       ]
         // Check if RevealServer framework exists at this path and only then include it in this array of dependencies
         + (isRevealSupported
@@ -120,24 +131,6 @@ let project = Project(
       resources: [],
       dependencies: [
         .target(name: "SkeletonProject"),
-      ]
-    ),
-
-    // MARK: - Modules
-
-    .target(
-      name: "Common",
-      // destinations: [.iPhone, .appleVision, .appleWatch],
-      destinations: .iOS,
-      product: .staticFramework,
-      productName: "Common",
-      bundleId: "me.igortarasenko.SkeletonProject.Common",
-      deploymentTargets: .iOS("16.0"), // .multiplatform(iOS: "16.0", watchOS: "9.0", visionOS: "1.0"),
-      sources: "SkeletonModules/Common/Sources/**",
-      dependencies: [
-        .external(name: "ComposableArchitecture"),
-        .external(name: "Tagged"),
-        .external(name: "MemberwiseInit"),
       ]
     ),
 
